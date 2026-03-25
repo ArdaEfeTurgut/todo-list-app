@@ -1,6 +1,23 @@
 tasks = []
 
 
+# Load tasks from file when program starts
+def load_tasks():
+    global tasks
+    try:
+        with open("tasks.txt", "r", encoding="utf-8") as file:
+            tasks = [line.strip() for line in file.readlines()]
+    except FileNotFoundError:
+        tasks = []
+
+
+# Save tasks to file after every change
+def save_tasks():
+    with open("tasks.txt", "w", encoding="utf-8") as file:
+        for task in tasks:
+            file.write(task + "\n")
+
+
 # Shows the menu options
 def show_menu():
     print("\n--- TO-DO LIST MENU ---")
@@ -13,27 +30,21 @@ def show_menu():
 
 # Adds a new task to the list
 def add_task():
-    # Ask the user to enter a task
     task = input("Enter a new task: ")
 
-    # Check if the task is empty
     if task.strip() == "":
         print("Task cannot be empty.")
     else:
-        # Add the task to the tasks list
-        tasks.append(task)
-
-        # Show a success message
+        tasks.append("[ ] " + task)
+        save_tasks()
         print("Task added successfully.")
 
 
 # Displays all tasks in the list
 def view_tasks():
-    # Check if the list is empty
     if len(tasks) == 0:
         print("No tasks found.")
     else:
-        # Print all tasks with numbers
         print("\nYour tasks:")
         for index, task in enumerate(tasks, start=1):
             print(f"{index}. {task}")
@@ -41,55 +52,54 @@ def view_tasks():
 
 # Marks a task as completed
 def complete_task():
-    # Show current tasks first
     view_tasks()
 
-    # If there are no tasks, stop the function
     if len(tasks) == 0:
         return
 
-    # Ask the user which task is completed
-    task_number = int(input("Enter task number to mark as completed: "))
+    try:
+        task_number = int(input("Enter task number to mark as completed: "))
 
-    # Check if the task number is valid
-    if task_number < 1 or task_number > len(tasks):
-        print("Invalid task number.")
-    else:
-        # Check if the task is already completed
-        if tasks[task_number - 1].startswith("[✓] "):
-            print("This task is already completed.")
+        if task_number < 1 or task_number > len(tasks):
+            print("Invalid task number.")
         else:
-            # Mark the selected task as completed
-            tasks[task_number - 1] = "[✓] " + tasks[task_number - 1]
+            if tasks[task_number - 1].startswith("[✓] "):
+                print("This task is already completed.")
+            else:
+                if tasks[task_number - 1].startswith("[ ] "):
+                    tasks[task_number - 1] = tasks[task_number - 1].replace("[ ] ", "[✓] ", 1)
+                else:
+                    tasks[task_number - 1] = "[✓] " + tasks[task_number - 1]
 
-            # Show a success message
-            print("Task marked as completed.")
+                save_tasks()
+                print("Task marked as completed.")
+    except ValueError:
+        print("Please enter a valid number.")
 
 
 # Deletes a task from the list
 def delete_task():
-    # Show current tasks first
     view_tasks()
 
-    # If there are no tasks, stop the function
     if len(tasks) == 0:
         return
 
-    # Ask the user which task should be deleted
-    task_number = int(input("Enter task number to delete: "))
+    try:
+        task_number = int(input("Enter task number to delete: "))
 
-    # Check if the task number is valid
-    if task_number < 1 or task_number > len(tasks):
-        print("Invalid task number.")
-    else:
-        # Remove the selected task from the list
-        tasks.pop(task_number - 1)
-
-        # Show a success message
-        print("Task deleted successfully.")
+        if task_number < 1 or task_number > len(tasks):
+            print("Invalid task number.")
+        else:
+            tasks.pop(task_number - 1)
+            save_tasks()
+            print("Task deleted successfully.")
+    except ValueError:
+        print("Please enter a valid number.")
 
 
 def main():
+    load_tasks()
+
     while True:
         show_menu()
         choice = input("Choose an option: ")
