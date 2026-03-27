@@ -1,2 +1,2 @@
-def app_name():
-    return "To-Do List App"
+def divide_numbers(a, b):
+    return a / b
